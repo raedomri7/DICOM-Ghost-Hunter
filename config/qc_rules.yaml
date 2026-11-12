@@ -1,0 +1,86 @@
+# DICOM Ghost Hunter — Quality control rule configuration
+# Severity levels: INFO, LOW, MEDIUM, HIGH, CRITICAL (technical priority, not clinical danger)
+
+metadata:
+  required_tags:
+    - PatientID
+    - StudyInstanceUID
+    - SeriesInstanceUID
+    - SOPInstanceUID
+    - Modality
+    - Rows
+    - Columns
+    - BitsAllocated
+    - BitsStored
+    - PhotometricInterpretation
+    - SamplesPerPixel
+  optional_but_recommended_tags:
+    - StudyDate
+    - StudyDescription
+    - SeriesDescription
+    - PixelSpacing
+    - ImagePositionPatient
+    - ImageOrientationPatient
+    - SliceThickness
+    - SpacingBetweenSlices
+  modality_specific:
+    CT:
+      - RescaleSlope
+      - RescaleIntercept
+    MR:
+      - EchoTime
+      - RepetitionTime
+      - FlipAngle
+
+duplicate:
+  enable_file_level: true
+  enable_pixel_level: true
+  enable_metadata_level: true
+  pixel_normalization: minmax
+  hash_algorithm: sha256
+
+slice_continuity:
+  enabled: true
+  modalities: [CT, MR]
+  max_gap_factor: 2.0
+  min_slices_for_analysis: 3
+  robust_estimator: median
+  check_orthogonality_tolerance: 0.01
+
+orientation:
+  enabled: true
+  orthogonality_tolerance: 0.01
+  norm_tolerance: 0.01
+
+geometry:
+  enabled: true
+  max_dimension: 4096
+  min_dimension: 16
+  bits_allocated_allowed: [8, 16, 32]
+
+image_quality:
+  enabled: true
+  compute_snr: true
+  compute_cnr: true
+  snr_roi_fraction: 0.1
+  background_roi_fraction: 0.05
+  clipping_threshold_fraction: 0.98
+
+privacy:
+  identifying_tags:
+    - PatientName
+    - PatientID
+    - PatientBirthDate
+    - InstitutionName
+    - InstitutionAddress
+    - ReferringPhysicianName
+    - PerformingPhysicianName
+    - OperatorsName
+    - PatientAddress
+    - PatientTelephoneNumbers
+    - PatientAge
+
+report:
+  include_disclaimer: true
+  include_limitations: true
+  severity_filter: INFO
